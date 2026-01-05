@@ -4,29 +4,51 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Password Generator</title>
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="css/style.css">
     </head>
 
+    <!-- Ideas: time it takes to crack password, implement passphrases, accessibility-->
     <body>
         <main>
             <h1>Password Generator</h1>
 
+            <section aria-labelledby="security-title" class="security-note">
+                <h2 id="security-title">Security & Privacy</h2>
+                <ul>
+                    <li>Runs entirely in your browser (no server).</li>
+                    <li>Uses Web Crypto API for randomness (<code>crypto.getRandomValues</code>).</li>
+                    <li>Passwords are not stored, logged, or transmitted.</li>
+                    <li>Tip: you can disconnect from the internet after the page loads.</li>
+                </ul>
+            </section>
+
             <button type="button" id="generate-password">Generate Password</button>
 
             <!-- aria-live for accessibility if page changes while reading -->
-            <section id="result" class="hidden" aria-live="polite">
+            <section id="result" class="hidden">
                 <label for="password">Generated Password</label>
 
                 <div class="row">
-                    <input id="password" type="password" readonly placeholder="Click Generate" />
+                    <input
+                        id="password"
+                        type="password"
+                        readonly
+                        placeholder="Click Generate"
+                        aria-describedby="strength crack-time"
+                    />
                     <button type="button" id="copy-password">Copy</button>
                     <button type="button" id="toggle-visibility">Show</button>
+                </div>
+
+                <div>
+                    <p id="strength" role="status" aria-live="polite"></p>
+                    <p id="crack-time" class="muted" aria-live="polite"></p>
                 </div>
 
                 <button type="button" id="again">Generate Another Password</button>
             </section>
         </main>
 
-        <script src="script.js" defer></script>
+        <script src="js/script.js" defer></script>
     </body>
 </html>

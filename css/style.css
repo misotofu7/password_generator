@@ -17,8 +17,9 @@ body {
 main {
     width: min(720px, 100%);
     padding: 28px;
-    border: 1px solid black;
+    border: 1px solid #ddd;
     border-radius: 12px;
+    box-shadow: 0 6px 18px black;
 }
 
 h1 {
@@ -43,16 +44,23 @@ label {
     align-items: center;
 }
 
+.row button {
+    flex: 0 0 auto;
+}
+
 #password {
     flex: 1;
     padding: 10px 12px;
     font-size: 16px;
+    min-width: 0;
+    line-height: 1.2;
 }
 
 button {
     padding: 10px 12px;
     font-size: 16px;
     cursor: pointer;
+    line-height: 1.2;
 }
 
 #again {
@@ -62,4 +70,29 @@ button {
 
 .hidden {
     display: none;
+}
+
+button:focus,
+input:focus
+textarea:focus {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* make status text readable */
+.muted {
+    opacity: 0.8;
+}
+
+#strength {
+    margin: 12px 0 4px;
+}
+
+#crack-time {
+    margin: 0;
 }
