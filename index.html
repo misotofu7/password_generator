@@ -42,6 +42,26 @@
                     <button type="button" id="toggle-visibility">Show</button>
                 </div>
 
+                <div class="control-group">
+                    <label for="length">
+                        Password Length:
+                        <strong><span id="length-value">16</span></strong>
+                    </label>
+
+                    <input
+                        id="length"
+                        type="range"
+                        min="8"
+                        value="16"
+                        step="1"
+                        aria-describedby="length-hint"
+                    >
+
+                    <p id="length-hint" class="muted">
+                        Recommended: 16-24 characters
+                    </p>
+                </div>
+
                 <div>
                     <p id="strength" role="status" aria-live="polite"></p>
                     <p id="crack-time" class="muted" aria-live="polite"></p>

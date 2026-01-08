@@ -10,10 +10,14 @@ const passwordInput = document.getElementById("password");
 const copyButton = document.getElementById("copy-password");
 const toggleButton = document.getElementById("toggle-visibility");
 
+const lengthInput = document.getElementById("length");
+const lengthValue = document.getElementById("length-value");
+
 const strengthEl = document.getElementById("strength");
 const crackTimeEl = document.getElementById("crack-time");
 
-if (!generateButton || !againButton || !result || !passwordInput || !copyButton || !toggleButton) {
+if (!generateButton || !againButton || !result|| !passwordInput || !copyButton
+    || !toggleButton || !lengthInput || !lengthValue || !strengthEl || !crackTimeEl) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
@@ -83,7 +87,7 @@ function strengthLabel(entropy) {
     if (entropy < 40)
         return "Weak";
     if (entropy < 60)
-        return "Medium";
+        return "Moderate";
     if (entropy < 80)
         return "Strong";
     return "Very strong";
@@ -96,6 +100,11 @@ function updateStrengthUI(password) {
     const length = password.length;
     const charsetSize = getCharsetSizeFromGenerator();
     const bits = entropyBits(length, charsetSize);
+
+    // warn if password length is too short (making it weak)
+    if (bits < 50) {
+        strengthEl.textContent += "⚠️ Consider increasing length."
+    }
 
     const label = strengthLabel(bits);
     strengthEl.textContent = `Strength: ${label} - ${length} chars, ~${bits.toFixed(1)} bits of entropy`;
@@ -110,9 +119,11 @@ function updateStrengthUI(password) {
 
 // helper function updating the UI
 function setNewPassword() {
-    const pw = generatePassword(16);
-    passwordInput.value = pw;
+    lengthValue.textContent = lengthInput.value;
+    const length = Number(lengthInput.value);
+    const pw = generatePassword(length);
 
+    passwordInput.value = pw;
     // reset copied button in case they pressed copy button before
     copyButton.textContent = "Copy";
     // hide password upon generation each time
@@ -120,12 +131,20 @@ function setNewPassword() {
     toggleButton.textContent = "Show";
     // remove the .hidden class
     result.classList.remove("hidden");
-
     // keep visible the "generate another password"
     generateButton.classList.add("hidden");
 
     updateStrengthUI(pw);
 }
+
+lengthInput.addEventListener("input", () => {
+    lengthValue.textContent = lengthInput.value;
+
+    // if the password already exists, regenerate another one!
+    if (passwordInput.value) {
+        setNewPassword();
+    }
+});
 
 generateButton.addEventListener("click", setNewPassword);
 againButton.addEventListener("click", setNewPassword);
