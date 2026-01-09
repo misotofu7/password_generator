@@ -31,6 +31,7 @@
                 <label for="password">Generated Password</label>
 
                 <div class="row">
+                    <!-- generated password appears here -->
                     <input
                         id="password"
                         type="password"
@@ -42,7 +43,22 @@
                     <button type="button" id="toggle-visibility">Show</button>
                 </div>
 
+                <fieldset class="mode-toggle">
+                    <legend>Password Type</legend>
+
+                    <label>
+                        <input type="radio" name="mode" value="random" checked/>
+                        Random password
+                    </label>
+
+                    <label>
+                        <input type="radio" name="mode" value="passphrase"/>
+                        Memorable passphrase
+                    </label>
+                </fieldset>
+
                 <div class="control-group">
+                    <!-- default length is 16 -->
                     <label for="length">
                         Password Length:
                         <strong><span id="length-value">16</span></strong>

@@ -10,18 +10,36 @@ const passwordInput = document.getElementById("password");
 const copyButton = document.getElementById("copy-password");
 const toggleButton = document.getElementById("toggle-visibility");
 
+const modeInputs = document.querySelectorAll('input[name="mode"]');
+
 const lengthInput = document.getElementById("length");
 const lengthValue = document.getElementById("length-value");
 
 const strengthEl = document.getElementById("strength");
 const crackTimeEl = document.getElementById("crack-time");
 
+if (modeInputs.length === 0) {
+    throw new Error('Missing mode ratio inputs: input[name="mode"]');
+}
+
 if (!generateButton || !againButton || !result|| !passwordInput || !copyButton
-    || !toggleButton || !lengthInput || !lengthValue || !strengthEl || !crackTimeEl) {
+    || !toggleButton || !modeInputs || !lengthInput || !lengthValue
+    || !strengthEl || !crackTimeEl) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
 const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?~|";
+
+const WORDS = [
+    "apple", "river", "cloud", "stone", "battery",
+    "forest", "orange", "silver", "mango", "planet",
+    "coffee", "window", "rocket", "shadow", "sunset"
+];
+
+function getMode() {
+    const checked = [...modeInputs].find(r => r.checked);
+    return checked  ? checked.value : "random";
+}
 
 // generates random password (default length 16)
 function generatePassword(length = 16) {
@@ -33,14 +51,23 @@ function generatePassword(length = 16) {
     return Array.from(arr, x => CHARSET[x % CHARSET.length]).join("");
 }
 
+function generatePassphrase(wordsCount = 4, separator = "-") {
+    const arr = new Uint32Array(wordsCount);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, x => WORDS[x % WORDS.length]).join(separator);
+}
+
 function getCharsetSizeFromGenerator() {
     // match same character you set to generate
     // can later compute size from user input?
     return CHARSET.length;
 }
 
+// convert password length + all possible characters into total guessing difficulty (entropy)
+// return entropy measured in bits
 function entropyBits(length, charsetSize) {
-    // bits = length * log2(charsetSize);
+    // log2(charsetSize) --> how many bits one character contributes
+    // multiply by length because each char adds independent choice from charset
     return length * Math.log2(charsetSize);
 }
 
@@ -93,36 +120,50 @@ function strengthLabel(entropy) {
     return "Very strong";
 }
 
-function updateStrengthUI(password) {
+function updateStrengthUI(password, mode) {
+    let bits;
+
+    if (mode === "passphrase") {
+        const words = password.split("-");
+        bits = words.length * Math.log2(WORDS.length);
+    }
+    else {
+        bits = entropyBits(password.length, getCharsetSizeFromGenerator());
+    }
+
     if (!strengthEl || !crackTimeEl)
         return;
 
-    const length = password.length;
-    const charsetSize = getCharsetSizeFromGenerator();
-    const bits = entropyBits(length, charsetSize);
+    const label = strengthLabel(bits);
 
     // warn if password length is too short (making it weak)
     if (bits < 50) {
-        strengthEl.textContent += "⚠️ Consider increasing length."
+        message += "⚠️ Consider increasing length.";
     }
 
-    const label = strengthLabel(bits);
-    strengthEl.textContent = `Strength: ${label} - ${length} chars, ~${bits.toFixed(1)} bits of entropy`;
+    let message = `Strength: ${label} - ~${bits.toFixed(1)} bits of entropy`;
+    strengthEl.textContent = message;
 
     const times = crackTimeEstimates(bits);
     crackTimeEl.textContent = 
-        `Estimated time to crack (average): ` + 
-        `Online ~${formatDuration(times.onlineAverageSeconds)}; ` + 
-        `Offline ~${formatDuration(times.offlineAverageSeconds)}. ` +
-        `Estimates vary widely by site and hashing.`;
+        `Estimated time to crack (average): Online ~${formatDuration(times.onlineAverageSeconds)}; ` + 
+        `Offline ~${formatDuration(times.offlineAverageSeconds)}.`;
 }
 
 // helper function updating the UI
 function setNewPassword() {
     lengthValue.textContent = lengthInput.value;
     const length = Number(lengthInput.value);
-    const pw = generatePassword(length);
+    const mode = getMode();
+    let pw;
 
+    if (mode === "passphrase") {
+        pw = generatePassphrase(4);
+    }
+    else {
+        pw = generatePassword(length);
+    }
+        
     passwordInput.value = pw;
     // reset copied button in case they pressed copy button before
     copyButton.textContent = "Copy";
@@ -134,7 +175,7 @@ function setNewPassword() {
     // keep visible the "generate another password"
     generateButton.classList.add("hidden");
 
-    updateStrengthUI(pw);
+    updateStrengthUI(pw, mode);
 }
 
 lengthInput.addEventListener("input", () => {
