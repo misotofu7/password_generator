@@ -14,6 +14,7 @@ const modeInputs = document.querySelectorAll('input[name="mode"]');
 
 const lengthInput = document.getElementById("length");
 const lengthValue = document.getElementById("length-value");
+const lengthLabel = document.getElementById("length-label");
 
 const strengthEl = document.getElementById("strength");
 const crackTimeEl = document.getElementById("crack-time");
@@ -24,16 +25,20 @@ if (modeInputs.length === 0) {
 
 if (!generateButton || !againButton || !result|| !passwordInput || !copyButton
     || !toggleButton || !modeInputs || !lengthInput || !lengthValue
-    || !strengthEl || !crackTimeEl) {
+    || !lengthLabel || !strengthEl || !crackTimeEl) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
+
+syncLengthControlForMode(getMode());
 
 const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?~|";
 
 const WORDS = [
     "apple", "river", "cloud", "stone", "battery",
     "forest", "orange", "silver", "mango", "planet",
-    "coffee", "window", "rocket", "shadow", "sunset"
+    "coffee", "window", "rocket", "shadow", "sunset",
+    "bottle", "tissue", "horse", "music", "language",
+    "snack", "earbud", "charger", "keychain", "grapefruit"
 ];
 
 function getMode() {
@@ -124,8 +129,8 @@ function updateStrengthUI(password, mode) {
     let bits;
 
     if (mode === "passphrase") {
-        const words = password.split("-");
-        bits = words.length * Math.log2(WORDS.length);
+        const wordsCount = password.split("-").filter(Boolean).length;
+        bits = wordsCount.length * Math.log2(WORDS.length);
     }
     else {
         bits = entropyBits(password.length, getCharsetSizeFromGenerator());
@@ -153,12 +158,12 @@ function updateStrengthUI(password, mode) {
 // helper function updating the UI
 function setNewPassword() {
     lengthValue.textContent = lengthInput.value;
-    const length = Number(lengthInput.value);
     const mode = getMode();
+    const length = Number(lengthInput.value);
     let pw;
 
     if (mode === "passphrase") {
-        pw = generatePassphrase(4);
+        pw = generatePassphrase(length);
     }
     else {
         pw = generatePassword(length);
@@ -178,6 +183,36 @@ function setNewPassword() {
     updateStrengthUI(pw, mode);
 }
 
+function syncLengthControlForMode(mode) {
+    if (lengthLabel) {
+        lengthLabel.textContent = mode === "passphrase" ? "Passphrase Words" : "Password Length";
+    }
+
+    if (mode == "passphrase") {
+        // word count range
+        lengthInput.min = "3";
+        lengthInput.max = "8";
+        lengthInput.step = "1";
+
+        // if current value out of range, pick reasonable default
+        const v = Number(lengthInput.value);
+        if (v < 3 || v > 8)
+            lengthInput.value = "4";
+    }
+    else {
+        // character length range
+        lengthInput.min = "8";
+        lengthInput.max = "64";
+        lengthInput.step = "1";
+
+        const v = Number(lengthInput.value);
+        if (v < 8 || v > 64)
+            lengthInput.value = "16";
+    }
+
+    lengthValue.textContent = lengthInput.value;
+}
+
 lengthInput.addEventListener("input", () => {
     lengthValue.textContent = lengthInput.value;
 
@@ -189,6 +224,17 @@ lengthInput.addEventListener("input", () => {
 
 generateButton.addEventListener("click", setNewPassword);
 againButton.addEventListener("click", setNewPassword);
+
+modeInputs.forEach(radio => {
+    radio.addEventListener("change", () => {
+        const mode = getMode();
+        syncLengthControlForMode(mode);
+
+        // if password exists already, regenerate using new mode settings
+        if (passwordInput.value)
+            setNewPassword()
+    });
+});
 
 // for showing and hiding generated password
 toggleButton.addEventListener("click", () => {
