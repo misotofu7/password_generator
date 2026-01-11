@@ -16,6 +16,12 @@ const lengthInput = document.getElementById("length");
 const lengthValue = document.getElementById("length-value");
 const lengthLabel = document.getElementById("length-label");
 
+const lowerOpt = document.getElementById("opt-lower");
+const upperOpt = document.getElementById("opt-upper");
+const digitsOpt = document.getElementById("opt-digits");
+const symbolsOpt = document.getElementById("opt-symbols");
+const charsetHint = document.getElementById("charset-hint");
+
 const strengthEl = document.getElementById("strength");
 const crackTimeEl = document.getElementById("crack-time");
 
@@ -25,13 +31,17 @@ if (modeInputs.length === 0) {
 
 if (!generateButton || !againButton || !result|| !passwordInput || !copyButton
     || !toggleButton || !modeInputs || !lengthInput || !lengthValue
-    || !lengthLabel || !strengthEl || !crackTimeEl) {
+    || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
+    || !charsetHint || !strengthEl || !crackTimeEl) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
 syncLengthControlForMode(getMode());
 
-const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?~|";
+const LOWER = "abcdefghijklmnopqrstuvwxyz";
+const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const DIGITS = "0123456789";
+const SYMBOLS = "!@#$%^&*()-_=+[]{};:,.?~|";
 
 const WORDS = [
     "apple", "river", "cloud", "stone", "battery",
@@ -46,14 +56,27 @@ function getMode() {
     return checked  ? checked.value : "random";
 }
 
+function buildCharset() {
+    let charset = "";
+    if (lowerOpt.checked)
+        charset += LOWER
+    if (upperOpt.checked)
+        charset += UPPER;
+    if (digitsOpt.checked)
+        charset += DIGITS;
+    if (symbolsOpt.checked)
+        charset += SYMBOLS
+    return charset
+}
+
 // generates random password (default length 16)
-function generatePassword(length = 16) {
+function generatePassword(length = 16, charset) {
     // create array of length numbers
     const arr = new Uint32Array(length);
     // fills arr with cryptographically secure random numbers from browser/OS
     crypto.getRandomValues(arr);
     // convert typed array into normal array and join into a string
-    return Array.from(arr, x => CHARSET[x % CHARSET.length]).join("");
+    return Array.from(arr, x => charset[x % charset.length]).join("");
 }
 
 function generatePassphrase(wordsCount = 4, separator = "-") {
@@ -130,10 +153,13 @@ function updateStrengthUI(password, mode) {
 
     if (mode === "passphrase") {
         const wordsCount = password.split("-").filter(Boolean).length;
-        bits = wordsCount.length * Math.log2(WORDS.length);
+        bits = wordsCount * Math.log2(WORDS.length);
     }
     else {
-        bits = entropyBits(password.length, getCharsetSizeFromGenerator());
+        const charsetSize = buildCharset().length;
+        if (charsetSize === 0)
+            return;
+        bits = entropyBits(password.length, charsetSize);
     }
 
     if (!strengthEl || !crackTimeEl)
@@ -166,7 +192,15 @@ function setNewPassword() {
         pw = generatePassphrase(length);
     }
     else {
-        pw = generatePassword(length);
+        const charset = buildCharset();
+
+        if (charset.length === 0) {
+            charsetHint.textContent = "Select at least one character set to generate a password.";
+            return;
+        }
+
+        charsetHint.textContent = `Character set size: ${charset.length}`;
+        pw = generatePassword(length, charset);
     }
         
     passwordInput.value = pw;
@@ -220,6 +254,24 @@ lengthInput.addEventListener("input", () => {
     if (passwordInput.value) {
         setNewPassword();
     }
+});
+
+[lowerOpt, upperOpt, digitsOpt, symbolsOpt].forEach(opt => {
+    opt.addEventListener("change", () => {
+        const charsetSize = buildCharset().length;
+
+        if (charsetSize === 0) {
+            charsetHint.textContent = "Select at least one character set.";
+            return;
+        }
+
+        charsetHint.textContent = `Character set size: ${charsetSize}`;
+
+        // password is generated and is in random mode --> regenerate password
+        if (passwordInput.value && getMode() === "random") {
+            setNewPassword();
+        }
+    });
 });
 
 generateButton.addEventListener("click", setNewPassword);

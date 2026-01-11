@@ -78,6 +78,17 @@
                     </p>
                 </div>
 
+                <fieldset class="charset">
+                    <legend>Include characters</legend>
+
+                    <label><input type="checkbox" id="opt-lower" checked> Lowercase (a-z)</label>
+                    <label><input type="checkbox" id="opt-upper" checked>Uppercase (A-Z)</label>
+                    <label><input type="checkbox" id="opt-digits" checked>Numbers (0-9)</label>
+                    <label><input type="checkbox" id="opt-symbols" checked>Symbols</label>
+
+                    <p id="charset-hint" class="muted" aria-live="polite"></p>
+                </fieldset>
+
                 <div>
                     <p id="strength" role="status" aria-live="polite"></p>
                     <p id="crack-time" class="muted" aria-live="polite"></p>
