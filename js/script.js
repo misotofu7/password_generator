@@ -22,6 +22,8 @@ const digitsOpt = document.getElementById("opt-digits");
 const symbolsOpt = document.getElementById("opt-symbols");
 const charsetHint = document.getElementById("charset-hint");
 
+const strengthBar = document.getElementById("strength-bar");
+
 const strengthEl = document.getElementById("strength");
 const crackTimeEl = document.getElementById("crack-time");
 
@@ -29,10 +31,10 @@ if (modeInputs.length === 0) {
     throw new Error('Missing mode ratio inputs: input[name="mode"]');
 }
 
-if (!generateButton || !againButton || !result|| !passwordInput || !copyButton
+if (!generateButton || !againButton || !result || !passwordInput || !copyButton
     || !toggleButton || !modeInputs || !lengthInput || !lengthValue
     || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
-    || !charsetHint || !strengthEl || !crackTimeEl) {
+    || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
@@ -99,6 +101,23 @@ function entropyBits(length, charsetSize) {
     return length * Math.log2(charsetSize);
 }
 
+function strengthKeyFromLabel(label) {
+    // map to the CSS selectors above
+    if (label == "Weak")
+        return "weak";
+    if (label == "Moderate")
+        return "moderate";
+    if (label == "Strong")
+        return "strong";
+    return "very-strong";
+}
+
+function meterPercentFromBits(bits) {
+    // treat ~100 bits as full
+    const pct = (bits / 100) * 100;
+    return Math.max(0, Math.min(100, pct));
+}
+
 function formatDuration(seconds) {
     if (seconds < 1)
         return "less than 1 second";
@@ -157,8 +176,9 @@ function updateStrengthUI(password, mode) {
     }
     else {
         const charsetSize = buildCharset().length;
-        if (charsetSize === 0)
+        if (charsetSize === 0){
             return;
+        }
         bits = entropyBits(password.length, charsetSize);
     }
 
@@ -167,13 +187,18 @@ function updateStrengthUI(password, mode) {
 
     const label = strengthLabel(bits);
 
+    let message = `Strength: ${label} - ~${bits.toFixed(1)} bits of entropy`;
     // warn if password length is too short (making it weak)
     if (bits < 50) {
-        message += "⚠️ Consider increasing length.";
+        message += " ⚠️ Consider increasing length.";
     }
-
-    let message = `Strength: ${label} - ~${bits.toFixed(1)} bits of entropy`;
     strengthEl.textContent = message;
+
+    if (strengthBar) {
+        const pct = meterPercentFromBits(bits);
+        strengthBar.style.width = `${pct}%`;
+        result.dataset.strength = strengthKeyFromLabel(label)
+    }
 
     const times = crackTimeEstimates(bits);
     crackTimeEl.textContent = 

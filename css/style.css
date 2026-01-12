@@ -23,7 +23,8 @@
     --accent2: #7c5cff;
 
     /* status colors (strength meter, warnings, etc.) */
-    --good: #16a34a;
+    --very-good: rgb(0, 114, 0);
+    --good: #2ab55d;
     --warn: #f59e0b;
     --bad:  #ef4444;
 }
@@ -230,4 +231,36 @@ textarea:focus:not(:focus-visible) {
         max-width: 560px;
         margin: 0 auto;
     }
+}
+
+.meter {
+  height: 10px;
+  background: rgba(11, 18, 32, 0.10);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 10px 0 12px;
+}
+
+.meter_bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: width 180ms ease;
+}
+
+/* Colors driven by JS via data-strength on #result */
+#result[data-strength="weak"] .meter_bar {
+  background: var(--bad);
+}
+
+#result[data-strength="moderate"] .meter_bar {
+  background: var(--warn);
+}
+
+#result[data-strength="strong"] .meter_bar {
+  background: var(--good);
+}
+
+#result[data-strength="very-strong"] .meter_bar {
+  background: var(--very-good);
 }
