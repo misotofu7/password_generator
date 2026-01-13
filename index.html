@@ -24,7 +24,34 @@
                 </ul>
             </section>
 
+            <fieldset>
+                <legend>Mode</legend>
+
+                <label>
+                    <input type="radio" name="app-mode" value="generate" checked>
+                    Generate password
+                </label>
+
+                <label>
+                    <input type="radio" name="app-mode" value="analyze">
+                    Analyze my password
+                </label>
+            </fieldset>
+
             <button type="button" id="generate-password">Generate Password</button>
+
+            <div id="analyze-box" class="hidden">
+                <label for="user-password">
+                    Password to Analyze
+                </label>
+
+                <input
+                    id="user-password"
+                    type="password"
+                    placeholder="Paste your password here"
+                    aria-describedby="strength crack-time"
+                />
+            </div>
 
             <!-- aria-live for accessibility if page changes while reading -->
             <section id="result" class="hidden">

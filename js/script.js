@@ -27,6 +27,10 @@ const strengthBar = document.getElementById("strength-bar");
 const strengthEl = document.getElementById("strength");
 const crackTimeEl = document.getElementById("crack-time");
 
+const appModeInputs = document.querySelectorAll('input[name="app-mode"]');
+const analyzeBox = document.getElementById("analyze-box");
+const userPasswordInput = document.getElementById("user-password");
+
 if (modeInputs.length === 0) {
     throw new Error('Missing mode ratio inputs: input[name="mode"]');
 }
@@ -34,11 +38,14 @@ if (modeInputs.length === 0) {
 if (!generateButton || !againButton || !result || !passwordInput || !copyButton
     || !toggleButton || !modeInputs || !lengthInput || !lengthValue
     || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
-    || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl) {
+    || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl
+    || !appModeInputs || !analyzeBox || !userPasswordInput) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
+// call once on load
 syncLengthControlForMode(getMode());
+syncAppModeUI();
 
 const LOWER = "abcdefghijklmnopqrstuvwxyz";
 const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -52,6 +59,11 @@ const WORDS = [
     "bottle", "tissue", "horse", "music", "language",
     "snack", "earbud", "charger", "keychain", "grapefruit"
 ];
+
+function getAppMode() {
+    const checked = [...appModeInputs].find(r => r.checked);
+    return checked ? checked.value : "generate";
+}
 
 function getMode() {
     const checked = [...modeInputs].find(r => r.checked);
@@ -167,12 +179,29 @@ function strengthLabel(entropy) {
     return "Very strong";
 }
 
+function estimateCharsetSize(password) {
+    let size = 0;
+    if (/[a-z]/.test(password))
+        size += 26;
+    if (/[A-Z]/.test(password))
+        size += 26;
+    if (/[0-9]/.test(password))
+        size += 10;
+    if (/[^a-zA-Z0-9]/.test(password))
+        size += SYMBOLS.length;
+    return size || 1;
+}
+
 function updateStrengthUI(password, mode) {
     let bits;
 
     if (mode === "passphrase") {
         const wordsCount = password.split("-").filter(Boolean).length;
         bits = wordsCount * Math.log2(WORDS.length);
+    }
+    else if (mode === "analyze") {
+        const charsetSize = estimateCharsetSize(password);
+        bits = entropyBits(password.length, charsetSize);
     }
     else {
         const charsetSize = buildCharset().length;
@@ -240,6 +269,24 @@ function setNewPassword() {
     generateButton.classList.add("hidden");
 
     updateStrengthUI(pw, mode);
+}
+
+function syncAppModeUI() {
+    const mode = getAppMode();
+
+    if (mode === "analyze") {
+        analyzeBox.classList.remove("hidden");
+        generateButton.classList.add("hidden");
+        result.classList.remove("hidden");
+    }
+    else {
+        analyzeBox.classList.add("hidden");
+        generateButton.classList.remove("hidden");
+    }
+
+    // reset strength UI
+    strengthBar.style.width = "0%";
+    delete result.dataset.strength;
 }
 
 function syncLengthControlForMode(mode) {
@@ -311,6 +358,20 @@ modeInputs.forEach(radio => {
         if (passwordInput.value)
             setNewPassword()
     });
+});
+
+appModeInputs.forEach(radio => {
+    radio.addEventListener("change", syncAppModeUI);
+});
+
+userPasswordInput.addEventListener("input", () => {
+    const pw = userPasswordInput.value;
+    if (!pw){
+        return;
+    }
+
+    passwordInput.value = pw;
+    updateStrengthUI(pw, "analyze");
 });
 
 // for showing and hiding generated password
