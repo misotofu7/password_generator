@@ -1,22 +1,20 @@
-/* universal box sizing (* means every element) */
-* {
-    box-sizing: border-box;
-}
-
-/* for the <html> element */
+/* for the <html> element, creating custom properties */
 :root{
-    /* creating custom properties */
-
-    /* backgroudn colors for the page gradient */
+    /* background colors for the page gradient */
     --bg1: #0b1220;
     --bg2: #0f1b2d;
 
     /* card/panel background color */
-    --card: rgba(255,255,255,0.92);
+    --card: rgba(255, 255, 255, 0.92);
+    --panel: rgba(225, 225, 225, 0.1);
 
-    /* primary and secondary text colors */
+    --border: rgba(11, 18, 32, 0.18);
+    --border-soft: rgba(225, 225, 225, 0.18);
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+
     --text: #0b1220;
-    --muted: rgba(11,18,32,0.7);
+    --muted: rgba(11, 18, 32, 0.7);
+    --on-dark: #ffffff;
 
     /* primary gradient button colors */
     --accent: #5b8cff;
@@ -27,16 +25,41 @@
     --good: #2ab55d;
     --warn: #f59e0b;
     --bad:  #ef4444;
+
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --radius-sm: 12px;
+
+    --space-1: 6px;
+    --space-2: 10px;
+    --space-3: 14px;
+    --space-4: 18px;
+    --space-5: 22px;
+    --space-6: 28px;
+
+    --focus-ring: #ffffff;
+    --focus-offset: 3px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
     margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-
     /* makes body as tall as the viewport (what the viewer sees) */
     min-height: 100vh;
     padding: 32px;
+
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
 
     display: flex;
     flex-direction: column;
@@ -50,18 +73,77 @@ body {
         linear-gradient(180deg, var(--bg1), var(--bg2));
 }
 
+/* hide result section until password is generated */
+.hidden {
+    display: none;
+}
+
+/* make status text readable */
+.muted {
+    margin: 0;
+    color: var(--muted);
+}
+
 main {
     /* never wider than the screen */
     width: min(980px, 100%);
-    padding: 28px;
-    border: 1px solid rgba(255,255,255,0.18);
+    padding: var(--space-6);
+
+    border: 1px solid var(--border-soft);
     /* rounded corners */
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
     /* make background transculcent and blurred */
-    background: rgba(225,225,225,0.1);
+    background: var(--panel);
     backdrop-filter: blur(10px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    box-shadow: var(--shadow);
+
     margin-top: 8px;
+}
+
+/* start page */
+main > #starting-page {
+    margin-top: 0;
+}
+
+#starting-page {
+    display: grid;
+    gap: 18px;
+    justify-items: center;
+}
+
+#starting-page .site-title {
+    margin: 0;
+}
+
+#starting-page .security-note {
+    margin: 0;
+    width: min(720px, 100%);
+}
+
+#starting-page fieldset {
+    width: min(720px, 100%);
+    margin: 0;
+    padding: 16px 18px;
+}
+
+#starting-page legend {
+    margin-bottom: 8px;
+}
+
+#starting-page fieldset label {
+    margin: 8px 0 0;
+    padding: 6px 8px;
+    border-radius: 10px;
+}
+
+#starting-page fieldset label:hover {
+    background: rgba(11, 18, 32, 0.06);
+}
+
+/* Button should align with the cards */
+#generate-password {
+    width: min(720px, 100%);
+    margin: 0;
 }
 
 /*
@@ -70,9 +152,10 @@ every section after the first gets top margin
     (* + *) --> every child that has a previous sibling
 */
 main > * + * {
-    margin-top: 22px;
+    margin-top: var(--space-5);
 }
 
+/* Typography */
 .site-title {
     margin: 0 0 48px;
     text-align: center;
@@ -81,8 +164,7 @@ main > * + * {
     line-height: 1.1;
     letter-spacing: -0.02rem;
 
-    color: white;
-
+    color: var(--on-dark);
     text-shadow:
         0 2px 10px rgba(91,140,255,0.35),
         0 1px 2px rgba(0,0,0,0.4);
@@ -93,8 +175,15 @@ h1 {
     /* at least 32px, scales with viewport width, max 44px */
     font-size: clamp(32px, 3.2vw, 44px);
     line-height: 1.1;
-    color: white;
     letter-spacing: -0.02em;
+    color: var(--on-dark);
+}
+
+label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+    color: var(--text);
 }
 
 /* make security note its own card */
@@ -102,8 +191,8 @@ h1 {
     /* opaque white-ish panel */
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 18px;
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
     color: var(--text);
 
     max-width: 560px;
@@ -111,7 +200,7 @@ h1 {
 }
 
 .security-note h2 {
-    margin: 0 0 10px;
+    margin: 0 0 var(--space-2);
     font-size: 18px;
 }
 
@@ -125,20 +214,68 @@ h1 {
 #result {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
 }
 
-label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 10px;
+/* Form controls */
+input[type="password"],
+input[type="text"],
+input[type="range"] {
+    font: inherit;
+}
+
+#password,
+#user-password {
+    width: 100%;
+    flex: 1 1 260px;
+
+    padding: 12px;
+    font-size: 16px;
+    line-height: 1.2;
+
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: #ffffff;
     color: var(--text);
+
+    /* prevent overflow issues */
+    min-width: 0;
+}
+
+.control-group {
+    margin-top: var(--space-4);
+}
+
+.control-group > * + * {
+    margin-top: var(--space-2);
+}
+
+/* Fieldsets! */
+fieldset {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    background: rgba(225, 225, 225, 0.6);
+}
+
+legend {
+    padding: 0 var(--space-2);
+    font-weight: 700;
+    color: var(--text);
+}
+
+fieldset label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    font-weight: 600;
 }
 
 .row {
     display: flex;
-    gap: 10px;
+    gap: var(--space-2);
     align-items: center;
     flex-wrap: wrap;
 }
@@ -147,98 +284,46 @@ label {
     flex: 0 0 auto;
 }
 
-#password {
-    flex: 1 1 260px;
-    padding: 12px 12px;
-    font-size: 16px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    /* prevent overflow issues */
-    min-width: 0;
-    line-height: 1.2;
-}
-
+/* Buttons! */
 button {
     padding: 12px 14px;
     font-size: 16px;
-    cursor: pointer;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.1);
-    background: white;
     line-height: 1.2;
+
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0,0,0,0.1);
+    background: #ffffff;
+    color: var(--text);
+
+    transition: transform 120ms ease, filter 120ms ease;
 }
 
-/* generate button */
-#generate-password {
+button:hover {
+    filter: brightness(0.98);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* Main action buttons */
+#generate-password,
+#again {
     width: 100%;
     font-weight: 700;
-    color: white;
     border: none;
+    color: var(--on-dark);
     background: linear-gradient(90deg, var(--accent), var(--accent2));
 }
 
-#again {
-    margin-top: 14px;
-    width: 100%;
-    font-weight: 650;
-    border: none;
-    color: white;
-    background: linear-gradient(90deg, rgba(91,140,255,0.95), rgba(124,92,255,0.95));
-}
-
-/* hide result section until password is generated */
-.hidden {
-    display: none;
-}
-
-/* accessibility */
-button:focus,
-input:focus,
-textarea:focus {
-  outline: 3px solid currentColor;
-  outline-offset: 3px;
-}
-
-button:focus:not(:focus-visible),
-input:focus:not(:focus-visible),
-textarea:focus:not(:focus-visible) {
-    outline: none;
-}
-
-/* make status text readable */
-.muted {
-    opacity: 0.8;
-    margin: 0;
-    color: var(--muted);
-}
-
-#strength {
-    margin: 14px 0 6px;
-    font-weight: 650;
-    color: var(--text);
-}
-
-#crack-time {
-    margin: 0;
-}
-
-@media (min-width: 880px) {
-    main{
-        display: block;
-    }
-
-    .security-note {
-        max-width: 560px;
-        margin: 0 auto;
-    }
-}
-
+/* Colored strength meter + status */
 .meter {
   height: 10px;
   background: rgba(11, 18, 32, 0.10);
   border-radius: 999px;
   overflow: hidden;
-  margin: 10px 0 12px;
+  margin: var(--space-2) 0 var(--space-3);
 }
 
 .meter_bar {
@@ -248,7 +333,17 @@ textarea:focus:not(:focus-visible) {
   transition: width 180ms ease;
 }
 
-/* Colors driven by JS via data-strength on #result */
+#strength {
+    margin: var(--space-3) 0 var(--space-1);
+    font-weight: 700;
+    color: var(--text);
+}
+
+#crack-time {
+    margin: 0;
+}
+
+/* Colors controlled by JS (for strength of password in #result) */
 #result[data-strength="weak"] .meter_bar {
   background: var(--bad);
 }
@@ -263,4 +358,71 @@ textarea:focus:not(:focus-visible) {
 
 #result[data-strength="very-strong"] .meter_bar {
   background: var(--very-good);
+}
+
+/* Accessibility and focus */
+:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: var(--focus-offset);
+}
+
+#result :focus-visible {
+    --focus-ring: #0b1220;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+/* Responsive tweak */
+@media (min-width: 880px) {
+    .security-note {
+        max-width: 560px;
+        margin: 0 auto;
+    }
+}
+
+/* User preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --border: rgba(11, 18, 32, 0.35);
+        --muted: rgba(11, 18, 32, 0.85);
+    }
+
+    .meter {
+        background: rgba(11, 18, 32, 0.18);
+    }
+}
+
+/* windows high contrast mode */
+@media (forced-colors: active) {
+    .meter {
+        forced-color-adjust: auto;
+        border: 1px solid CanvasText;
+    }
+
+    .meter_bar {
+        forced-color-adjust: auto;
+        background: Highlight;
+    }
+
+    button,
+    input,
+    fieldset {
+        forced-color-adjust: auto;
+    }
 }

@@ -1,10 +1,8 @@
-// testing
-console.log("script.js loaded");
-
 // retrieve DOM elements
 const generateButton = document.getElementById("generate-password");
 const againButton = document.getElementById("again");
 const result = document.getElementById("result");
+const generatorUI = document.getElementById("generator-ui");
 
 const passwordInput = document.getElementById("password");
 const copyButton = document.getElementById("copy-password");
@@ -35,8 +33,8 @@ if (modeInputs.length === 0) {
     throw new Error('Missing mode ratio inputs: input[name="mode"]');
 }
 
-if (!generateButton || !againButton || !result || !passwordInput || !copyButton
-    || !toggleButton || !modeInputs || !lengthInput || !lengthValue
+if (!generateButton || !againButton || !result || !generatorUI || !passwordInput
+    || !copyButton || !toggleButton || !modeInputs || !lengthInput || !lengthValue
     || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
     || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl
     || !appModeInputs || !analyzeBox || !userPasswordInput) {
@@ -274,19 +272,28 @@ function setNewPassword() {
 function syncAppModeUI() {
     const mode = getAppMode();
 
+    // always show result panel in either mode
+    // strength meter, entropy bits analysis, password length
+    result.classList.remove("hidden");
+
     if (mode === "analyze") {
         analyzeBox.classList.remove("hidden");
+        generatorUI.classList.add("hidden");
         generateButton.classList.add("hidden");
-        result.classList.remove("hidden");
     }
     else {
         analyzeBox.classList.add("hidden");
+        generatorUI.classList.remove("hidden");
         generateButton.classList.remove("hidden");
     }
 
-    // reset strength UI
-    strengthBar.style.width = "0%";
-    delete result.dataset.strength;
+    if (mode === "analyze" && userPasswordInput.value) {
+        updateStrengthUI(userPasswordInput.value, "analyze");
+    }
+    
+    if (mode === "generate" && passwordInput.value) {
+        updateStrengthUI(passwordInput.value, getMode());
+    }
 }
 
 function syncLengthControlForMode(mode) {
@@ -367,10 +374,14 @@ appModeInputs.forEach(radio => {
 userPasswordInput.addEventListener("input", () => {
     const pw = userPasswordInput.value;
     if (!pw){
+        // clear analysis display if empty
+        strengthEl.textContent = "";
+        crackTimeEl.textContent = "";
+        strengthBar.style.width = "0%";
+        delete result.dataset.strength;
         return;
     }
 
-    passwordInput.value = pw;
     updateStrengthUI(pw, "analyze");
 });
 
