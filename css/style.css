@@ -35,7 +35,7 @@
     --space-3: 14px;
     --space-4: 18px;
     --space-5: 22px;
-    --space-6: 28px;
+    --space-6: 32px;
 
     --focus-ring: #ffffff;
     --focus-offset: 3px;
@@ -105,10 +105,18 @@ main > #starting-page {
     margin-top: 0;
 }
 
+#starting-page,
+#result {
+    width: min(820px, 100%);
+    margin-inline: auto;
+}
+
 #starting-page {
     display: grid;
-    gap: 18px;
+    gap: var(--space-5);
     justify-items: center;
+
+
 }
 
 #starting-page .site-title {
@@ -117,32 +125,43 @@ main > #starting-page {
 
 #starting-page .security-note {
     margin: 0;
-    width: min(720px, 100%);
+    width: 100%;
 }
 
 #starting-page fieldset {
-    width: min(720px, 100%);
+    width: 100%;
     margin: 0;
-    padding: 16px 18px;
+    padding: 18px;
+
+    border: 0;
+    box-shadow: 0 0 0 1px var(--border) inset;
+
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-md);
 }
 
-#starting-page legend {
-    margin-bottom: 8px;
+#starting-page fieldset > legend {
+    margin: 0 0 12ppx;
+    padding: 0;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--on-dark);
 }
 
 #starting-page fieldset label {
     margin: 8px 0 0;
-    padding: 6px 8px;
-    border-radius: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 #starting-page fieldset label:hover {
-    background: rgba(11, 18, 32, 0.06);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* Button should align with the cards */
 #generate-password {
-    width: min(720px, 100%);
+    width: 100%;
     margin: 0;
 }
 
@@ -212,10 +231,40 @@ label {
 }
 
 #result {
+    margin-top: 18px;
+    padding: 22px;
+    display: grid;
+    gap:18px;
+
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: var(--space-4);
+}
+
+#result fieldset {
+    background: rgba(11, 18, 32, 0.04);
+    border: 1px solid rgba(11, 18, 32, 0.12);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 0;
+}
+
+#result fieldset label {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    border-radius: 12px;
+}
+
+#result legend {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+#generator-ui {
+    display: grid;
+    gap: 16px;
 }
 
 /* Form controls */
@@ -225,7 +274,10 @@ input[type="range"] {
     font: inherit;
 }
 
-#password,
+#password{
+    height: 44px;
+}
+
 #user-password {
     width: 100%;
     flex: 1 1 260px;
@@ -244,11 +296,23 @@ input[type="range"] {
 }
 
 .control-group {
-    margin-top: var(--space-4);
+    margin: 0;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(11, 18, 32, 0.04);
+    border: 1px solid rgba(11, 18, 32, 0.12);
+}
+
+.control-group > label {
+    margin-bottom: 8px;
 }
 
 .control-group > * + * {
     margin-top: var(--space-2);
+}
+
+#length {
+    width: 100%;
 }
 
 /* Fieldsets! */
@@ -274,14 +338,12 @@ fieldset label {
 }
 
 .row {
-    display: flex;
     gap: var(--space-2);
-    align-items: center;
-    flex-wrap: wrap;
 }
 
 .row button {
-    flex: 0 0 auto;
+    height: 44px;
+    padding-inline: 14px;
 }
 
 /* Buttons! */
@@ -317,13 +379,13 @@ button:active {
     background: linear-gradient(90deg, var(--accent), var(--accent2));
 }
 
+#again {
+    margin-top: 6px;
+}
+
 /* Colored strength meter + status */
 .meter {
-  height: 10px;
-  background: rgba(11, 18, 32, 0.10);
-  border-radius: 999px;
-  overflow: hidden;
-  margin: var(--space-2) 0 var(--space-3);
+  margin: 6px 0 0;
 }
 
 .meter_bar {
@@ -334,9 +396,7 @@ button:active {
 }
 
 #strength {
-    margin: var(--space-3) 0 var(--space-1);
-    font-weight: 700;
-    color: var(--text);
+    margin: 10px 0 4px;
 }
 
 #crack-time {
@@ -385,6 +445,25 @@ input[type="radio"] {
     .security-note {
         max-width: 560px;
         margin: 0 auto;
+    }
+}
+
+@media (max-width: 520px) {
+    main{
+        padding: 18px;
+    }
+
+    #result {
+        padding: 18px;
+    }
+
+    .row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .row button {
+        width: 100%;
     }
 }
 
