@@ -15,7 +15,7 @@
                     <h1 class="site-title">Password Generator</h1>
                 </header>
                 
-                <section aria-labelledby="security-title" class="security-note">
+                <section class="security-note" aria-labelledby="security-title">
                     <h2 id="security-title">Security & Privacy</h2>
                     <ul>
                         <li>Runs entirely in your browser (no server).</li>
@@ -28,12 +28,12 @@
                 <fieldset>
                     <legend>Mode</legend>
 
-                    <label>
+                    <label class="mode-button">
                         <input type="radio" name="app-mode" value="generate" checked>
                         Generate password
                     </label>
 
-                    <label>
+                    <label class="mode-button">
                         <input type="radio" name="app-mode" value="analyze">
                         Analyze my password
                     </label>
@@ -46,29 +46,33 @@
             <section id="result" class="hidden">
                 <!-- Password analysis input box -->
                 <div id="analyze-box" class="hidden">
-                    <label for="user-password">Password to Analyze</label>
-                    <input
-                        id="user-password"
-                        type="password"
-                        placeholder="Paste your password here"
-                        aria-describedby="strength crack-time"
-                    />
+                    <div class="field">
+                        <label for="user-password">Password to Analyze</label>
+                        <input
+                            id="user-password"
+                            type="password"
+                            placeholder="Paste your password here"
+                            aria-describedby="strength crack-time"
+                        />
+                    </div>
                 </div>
 
                 <!-- Generated Password output -->
                 <div id="generator-ui">
-                    <label for="password">Generated Password</label>
+                    <div class="field">
+                        <label for="password">Generated Password</label>
 
-                    <div class="row">
-                        <input
-                            id="password"
-                            type="password"
-                            readonly
-                            placeholder="Click Generate"
-                            aria-describedby="strength crack-time"
-                        />
-                        <button type="button" id="copy-password">Copy</button>
-                        <button type="button" id="toggle-visibility">Show</button>
+                        <div class="row">
+                            <input
+                                id="password"
+                                type="password"
+                                readonly
+                                placeholder="Click Generate"
+                                aria-describedby="strength crack-time"
+                            />
+                            <button type="button" id="copy-password">Copy</button>
+                            <button type="button" id="toggle-visibility">Show</button>
+                        </div>
                     </div>
 
                     <!-- Password type (random or memorable) -->
