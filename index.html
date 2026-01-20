@@ -39,7 +39,7 @@
                     </label>
                 </fieldset>
 
-                <button type="button" id="generate-password">Generate Password</button>
+                <!-- <button type="button" id="generate-password">Generate Password</button> -->
             </section>
 
             <!-- Results after generating password or analyzing user's inputted password -->
@@ -58,81 +58,85 @@
                 </div>
 
                 <!-- Generated Password output -->
-                <div id="generator-ui">
-                    <div class="field">
-                        <label for="password">Generated Password</label>
+                <div id="generator-only">
+                    <div id="generator-ui">
+                        <button type="button" id="generate-password">Generate Password</button>
+                        
+                        <div class="field">
+                            <label for="password">Generated Password</label>
 
-                        <div class="row">
-                            <input
-                                id="password"
-                                type="password"
-                                readonly
-                                placeholder="Click Generate"
-                                aria-describedby="strength crack-time"
-                            />
-                            <button type="button" id="copy-password">Copy</button>
-                            <button type="button" id="toggle-visibility">Show</button>
+                            <div class="row">
+                                <input
+                                    id="password"
+                                    type="password"
+                                    readonly
+                                    placeholder="Click Generate"
+                                    aria-describedby="strength crack-time"
+                                />
+                                <button type="button" id="copy-password">Copy</button>
+                                <button type="button" id="toggle-visibility">Show</button>
+                            </div>
                         </div>
+
+                        <!-- Password type (random or memorable) -->
+                        <fieldset class="mode-toggle">
+                            <legend>Password Type</legend>
+
+                            <label>
+                                <input type="radio" name="mode" value="random" checked/>
+                                Random password
+                            </label>
+
+                            <label>
+                                <input type="radio" name="mode" value="passphrase"/>
+                                Memorable passphrase
+                            </label>
+                        </fieldset>
+
+                        <!-- Character checkbox options (lowercase, uppercase, numbers, symbols) -->
+                        <fieldset class="charset">
+                            <legend>Include characters</legend>
+
+                            <label><input type="checkbox" id="opt-lower" checked> Lowercase (a-z)</label>
+                            <label><input type="checkbox" id="opt-upper" checked>Uppercase (A-Z)</label>
+                            <label><input type="checkbox" id="opt-digits" checked>Numbers (0-9)</label>
+                            <label><input type="checkbox" id="opt-symbols" checked>Symbols</label>
+
+                            <p id="charset-hint" class="muted" aria-live="polite"></p>
+                        </fieldset>
                     </div>
 
-                    <!-- Password type (random or memorable) -->
-                    <fieldset class="mode-toggle">
-                        <legend>Password Type</legend>
-
-                        <label>
-                            <input type="radio" name="mode" value="random" checked/>
-                            Random password
+                    <!-- Control password length (user-interactive slider) -->
+                    <div class="control-group">
+                        <label for="length">
+                            <span id="length-label">Password Length</span>:
+                            <strong><span id="length-value">16</span></strong>
                         </label>
 
-                        <label>
-                            <input type="radio" name="mode" value="passphrase"/>
-                            Memorable passphrase
-                        </label>
-                    </fieldset>
+                        <input
+                            id="length"
+                            type="range"
+                            min="8"
+                            value="16"
+                            step="1"
+                            aria-describedby="length-hint"
+                        />
 
-                    <!-- Character checkbox options (lowercase, uppercase, numbers, symbols) -->
-                    <fieldset class="charset">
-                        <legend>Include characters</legend>
-
-                        <label><input type="checkbox" id="opt-lower" checked> Lowercase (a-z)</label>
-                        <label><input type="checkbox" id="opt-upper" checked>Uppercase (A-Z)</label>
-                        <label><input type="checkbox" id="opt-digits" checked>Numbers (0-9)</label>
-                        <label><input type="checkbox" id="opt-symbols" checked>Symbols</label>
-
-                        <p id="charset-hint" class="muted" aria-live="polite"></p>
-                    </fieldset>
-
-                    <button type="button" id="again">Generate Another Password</button>
+                        <p id="length-hint" class="muted">Recommended: 16-24 characters</p>
+                    </div>
                 </div>
 
-                <!-- Control password length (user-interactive slider) -->
-                <div class="control-group">
-                    <label for="length">
-                        <span id="length-label">Password Length</span>:
-                        <strong><span id="length-value">16</span></strong>
-                    </label>
+                <div id="analysis-output" class="hidden">
+                    <!-- Password strength meter (color-coded) -->
+                    <div class="meter" role="presentation" aria-hidden="true">
+                        <div id="strength-bar" class="meter_bar" style="width: 0%"></div>
+                    </div>
 
-                    <input
-                        id="length"
-                        type="range"
-                        min="8"
-                        value="16"
-                        step="1"
-                        aria-describedby="length-hint"
-                    />
-
-                    <p id="length-hint" class="muted">Recommended: 16-24 characters</p>
-                </div>
-
-                <!-- Password strength meter (color-coded) -->
-                <div class="meter" role="presentation" aria-hidden="true">
-                    <div id="strength-bar" class="meter_bar" style="width: 0%"></div>
-                </div>
-
-                <!-- Status text (including crack time and bits of entropy) -->
-                <div>
-                    <p id="strength" role="status" aria-live="polite"></p>
-                    <p id="crack-time" class="muted" aria-live="polite"></p>
+                    <!-- Status text (including crack time and bits of entropy) -->
+                    <div>
+                        <p id="strength" role="status" aria-live="polite"></p>
+                        <p id="crack-time" class="muted" aria-live="polite"></p>
+                    </div>
                 </div>
             </section>
         </main>

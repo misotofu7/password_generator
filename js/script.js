@@ -1,8 +1,8 @@
 // retrieve DOM elements
 const generateButton = document.getElementById("generate-password");
-const againButton = document.getElementById("again");
 const result = document.getElementById("result");
 const generatorUI = document.getElementById("generator-ui");
+const generatorOnly = document.getElementById("generator-only");
 
 const passwordInput = document.getElementById("password");
 const copyButton = document.getElementById("copy-password");
@@ -20,6 +20,7 @@ const digitsOpt = document.getElementById("opt-digits");
 const symbolsOpt = document.getElementById("opt-symbols");
 const charsetHint = document.getElementById("charset-hint");
 
+const analysisOutput = document.getElementById("analysis-output");
 const strengthBar = document.getElementById("strength-bar");
 
 const strengthEl = document.getElementById("strength");
@@ -33,9 +34,9 @@ if (modeInputs.length === 0) {
     throw new Error('Missing mode ratio inputs: input[name="mode"]');
 }
 
-if (!generateButton || !againButton || !result || !generatorUI || !passwordInput
-    || !copyButton || !toggleButton || !modeInputs || !lengthInput || !lengthValue
-    || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
+if (!generateButton || !result || !generatorUI || !generatorOnly || !passwordInput
+    || !copyButton || !toggleButton|| !lengthInput || !lengthValue
+    || !analysisOutput || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
     || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl
     || !appModeInputs || !analyzeBox || !userPasswordInput) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
@@ -100,7 +101,7 @@ function generatePassphrase(wordsCount = 4, separator = "-") {
 function getCharsetSizeFromGenerator() {
     // match same character you set to generate
     // can later compute size from user input?
-    return CHARSET.length;
+    return buildCharset().length;
 }
 
 // convert password length + all possible characters into total guessing difficulty (entropy)
@@ -233,6 +234,14 @@ function updateStrengthUI(password, mode) {
         `Offline ~${formatDuration(times.offlineAverageSeconds)}.`;
 }
 
+function resetAnalysisOutput() {
+    analysisOutput.classList.add("hidden");
+    strengthEl.textContent = "";
+    crackTimeEl.textContent = "";
+    strengthBar.style.width = "0%";
+    delete result.dataset.strength;
+}
+
 // helper function updating the UI
 function setNewPassword() {
     lengthValue.textContent = lengthInput.value;
@@ -251,7 +260,7 @@ function setNewPassword() {
             return;
         }
 
-        charsetHint.textContent = `Character set size: ${charset.length}`;
+        // charsetHint.textContent = `Character set size: ${charset.length}`;
         pw = generatePassword(length, charset);
     }
         
@@ -261,12 +270,14 @@ function setNewPassword() {
     // hide password upon generation each time
     passwordInput.type = "password";
     toggleButton.textContent = "Show";
+
     // remove the .hidden class
     result.classList.remove("hidden");
-    // keep visible the "generate another password"
-    generateButton.classList.add("hidden");
 
+    analysisOutput.classList.remove("hidden");
     updateStrengthUI(pw, mode);
+
+    generateButton.textContent = "Generate Another Password";
 }
 
 function syncAppModeUI() {
@@ -278,22 +289,34 @@ function syncAppModeUI() {
 
     if (mode === "analyze") {
         analyzeBox.classList.remove("hidden");
-        generatorUI.classList.add("hidden");
+        generatorOnly.classList.add("hidden");
         generateButton.classList.add("hidden");
-    }
-    else {
-        analyzeBox.classList.add("hidden");
-        generatorUI.classList.remove("hidden");
-        generateButton.classList.remove("hidden");
+        passwordInput.value = "";
+        resetAnalysisOutput();
+        return;
     }
 
-    if (mode === "analyze" && userPasswordInput.value) {
-        updateStrengthUI(userPasswordInput.value, "analyze");
-    }
-    
-    if (mode === "generate" && passwordInput.value) {
+    analyzeBox.classList.add("hidden");
+    generatorOnly.classList.remove("hidden");
+    generateButton.classList.remove("hidden");
+
+    if (passwordInput.value) {
+        analysisOutput.classList.remove("hidden");
         updateStrengthUI(passwordInput.value, getMode());
     }
+    else {
+        resetAnalysisOutput();
+    }
+
+    generateButton.textContent = passwordInput.value ? "Generate Another Password" : "Generate Password";
+
+    // if (mode === "analyze" && userPasswordInput.value) {
+    //     updateStrengthUI(userPasswordInput.value, "analyze");
+    // }
+    
+    // if (mode === "generate" && passwordInput.value) {
+    //     updateStrengthUI(passwordInput.value, getMode());
+    // }
 }
 
 function syncLengthControlForMode(mode) {
@@ -354,7 +377,6 @@ lengthInput.addEventListener("input", () => {
 });
 
 generateButton.addEventListener("click", setNewPassword);
-againButton.addEventListener("click", setNewPassword);
 
 modeInputs.forEach(radio => {
     radio.addEventListener("change", () => {
@@ -372,16 +394,14 @@ appModeInputs.forEach(radio => {
 });
 
 userPasswordInput.addEventListener("input", () => {
-    const pw = userPasswordInput.value;
+    const pw = userPasswordInput.value.trim();
     if (!pw){
         // clear analysis display if empty
-        strengthEl.textContent = "";
-        crackTimeEl.textContent = "";
-        strengthBar.style.width = "0%";
-        delete result.dataset.strength;
+        resetAnalysisOutput();
         return;
     }
 
+    analysisOutput.classList.remove("hidden");
     updateStrengthUI(pw, "analyze");
 });
 
