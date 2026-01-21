@@ -8,6 +8,9 @@ const passwordInput = document.getElementById("password");
 const copyButton = document.getElementById("copy-password");
 const toggleButton = document.getElementById("toggle-visibility");
 
+const copyAnalyzeButton = document.getElementById("copy-analyze");
+const toggleAnalyzeButton = document.getElementById("toggle-analyze");
+
 const modeInputs = document.querySelectorAll('input[name="mode"]');
 
 const lengthInput = document.getElementById("length");
@@ -35,9 +38,9 @@ if (modeInputs.length === 0) {
 }
 
 if (!generateButton || !result || !generatorUI || !generatorOnly || !passwordInput
-    || !copyButton || !toggleButton|| !lengthInput || !lengthValue
+    || !copyButton || !toggleButton|| !lengthInput || !lengthValue || !copyAnalyzeButton
     || !analysisOutput || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
-    || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl
+    || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl || !toggleAnalyzeButton
     || !appModeInputs || !analyzeBox || !userPasswordInput) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
@@ -349,6 +352,30 @@ function syncLengthControlForMode(mode) {
     lengthValue.textContent = lengthInput.value;
 }
 
+function wireCopyAndToggle(copyButton, toggleButton, inputField) {
+    // toggle visibility
+    toggleButton.addEventListener("click", () => {
+        if (!inputField.value){
+            return;
+        }
+
+        const showing = inputField.type === "text";
+        inputField.type = showing ? "password" : "text";
+        toggleButton.textContent = showing ? "Show" : "Hide";
+    });
+
+    // copy to clipboard
+    copyButton.addEventListener("click", async () => {
+        if (!inputField.value) {
+            return;
+        }
+
+        await navigator.clipboard.writeText(inputField.value);
+        copyButton.textContent = "Copied!";
+        setTimeout(() => (copyButton.textContent = "Copy"), 1000);
+    });
+}
+
 lengthInput.addEventListener("input", () => {
     lengthValue.textContent = lengthInput.value;
 
@@ -398,6 +425,9 @@ userPasswordInput.addEventListener("input", () => {
     if (!pw){
         // clear analysis display if empty
         resetAnalysisOutput();
+        userPasswordInput.type = "password";
+        toggleAnalyzeButton.textContent = "Show";
+        copyAnalyzeButton.textContent = "Copy";
         return;
     }
 
@@ -405,26 +435,5 @@ userPasswordInput.addEventListener("input", () => {
     updateStrengthUI(pw, "analyze");
 });
 
-// for showing and hiding generated password
-toggleButton.addEventListener("click", () => {
-    if (!passwordInput.value)
-        return;
-
-    // "text" means visible, "password" means hidden
-    const showing = passwordInput.type === "text";
-    // if currently showing, switch to hidden (v.v.)
-    passwordInput.type = showing ? "password" : "text";
-    // update button label to match toggle status
-    toggleButton.textContent = showing ? "Show" : "Hide";
-});
-
-// copy password
-copyButton.addEventListener("click", async () => {
-    if (!passwordInput.value) return;
-    // copy current password text to user's clipboard
-    await navigator.clipboard.writeText(passwordInput.value);
-    // provide instant feedback
-    copyButton.textContent = "Copied!";
-    // after 1s, change button text back to "Copy"
-    setTimeout(() => (copyButton.textContent = "Copy"), 1000);
-});
+wireCopyAndToggle(copyButton, toggleButton, passwordInput);
+wireCopyAndToggle(copyAnalyzeButton, toggleAnalyzeButton, userPasswordInput);
