@@ -418,6 +418,10 @@ button:active {
     margin-top: 0;
 }
 
+#charset-box {
+    transition: opacity 120ms ease;
+}
+
 /* Colored strength meter + status */
 .meter {
   margin: auto;
@@ -467,6 +471,21 @@ button:active {
 
 :focus:not(:focus-visible) {
     outline: none;
+}
+
+input[type="password"],
+input[type="text"] {
+    background: #ffffff;
+    border: 1px solid rgba(11, 18, 32, 0.2);
+    border-radius: var(--radius-sm);
+
+    padding: 12px 14px;
+    font-size: 16px;
+    line-height: 1.2;
+
+    transition:
+        border-color 120ms ease,
+        box-shadow 120ms ease;
 }
 
 input[type="checkbox"],

@@ -17,6 +17,8 @@ const lengthInput = document.getElementById("length");
 const lengthValue = document.getElementById("length-value");
 const lengthLabel = document.getElementById("length-label");
 
+const charsetBox = document.getElementById("charset-box");
+
 const lowerOpt = document.getElementById("opt-lower");
 const upperOpt = document.getElementById("opt-upper");
 const digitsOpt = document.getElementById("opt-digits");
@@ -41,13 +43,17 @@ if (!generateButton || !result || !generatorUI || !generatorOnly || !passwordInp
     || !copyButton || !toggleButton|| !lengthInput || !lengthValue || !copyAnalyzeButton
     || !analysisOutput || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
     || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl || !toggleAnalyzeButton
-    || !appModeInputs || !analyzeBox || !userPasswordInput) {
+    || !appModeInputs || !analyzeBox || !userPasswordInput || !charsetBox) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
 // call once on load
 syncLengthControlForMode(getMode());
 syncAppModeUI();
+
+if (getMode() === "passphrase") {
+    charsetBox.classList.add("hidden");
+}
 
 const LOWER = "abcdefghijklmnopqrstuvwxyz";
 const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -409,6 +415,13 @@ modeInputs.forEach(radio => {
     radio.addEventListener("change", () => {
         const mode = getMode();
         syncLengthControlForMode(mode);
+
+        if (mode === "passphrase") {
+            charsetBox.classList.add("hidden");
+        }
+        else {
+            charsetBox.classList.remove("hidden");
+        }
 
         // if password exists already, regenerate using new mode settings
         if (passwordInput.value)
