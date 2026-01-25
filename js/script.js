@@ -65,7 +65,26 @@ const WORDS = [
     "forest", "orange", "silver", "mango", "planet",
     "coffee", "window", "rocket", "shadow", "sunset",
     "bottle", "tissue", "horse", "music", "language",
-    "snack", "earbud", "charger", "keychain", "grapefruit"
+    "snack", "earbud", "charger", "keychain", "grapefruit",
+    "notebook", "pencil", "backpack", "picture", "holiday",
+    "diamond", "butterfly", "candle", "blanket", "firework",
+    "jungle", "island", "volcano", "desert", "waterfall",
+    "galaxy", "comet", "meteor", "tornado", "hurricane",
+    "elephant", "giraffe", "dolphin", "penguin", "kangaroo",
+    "pyramid", "statue", "bridge", "castle", "temple",
+    "violin", "guitar", "piano", "drum", "trumpet",
+    "camera", "microphone", "speaker", "headphone", "projector",
+    "chocolate", "vanilla", "strawberry", "blueberry", "raspberry",
+    "pumpkin", "cinnamon", "nutmeg", "clove", "ginger",
+    "rainbow", "thunder", "lightning", "breeze", "cyclone",
+    "butterfly", "dragonfly", "ladybug", "grasshopper", "firefly",
+    "tulip", "daisy", "sunflower", "rose", "orchid",
+    "mountain", "valley", "canyon", "cliff", "plateau",
+    "sapphire", "emerald", "ruby", "diamond", "opal",
+    "tangerine", "clementine", "persimmon", "pomegranate", "cranberry",
+    "artificial", "battery", "circuit", "digital", "network",
+    "intelligence", "algorithm", "database", "protocol", "software",
+    "mechanic", "engineer", "architect", "designer", "developer", "analyst"
 ];
 
 function getAppMode() {
@@ -101,9 +120,13 @@ function generatePassword(length = 16, charset) {
     return Array.from(arr, x => charset[x % charset.length]).join("");
 }
 
-function generatePassphrase(wordsCount = 4, separator = "-") {
+function generatePassphrase(wordsCount = 6, separator = "-") {
     const arr = new Uint32Array(wordsCount);
     crypto.getRandomValues(arr);
+
+    const words = Array.from(arr.slice(0, wordsCount), x => WORDS[x % WORDS.length]);
+    const number = String(arr[wordsCount] % 100).padStart(2, '0');
+
     return Array.from(arr, x => WORDS[x % WORDS.length]).join(separator);
 }
 
@@ -201,11 +224,21 @@ function estimateCharsetSize(password) {
 }
 
 function updateStrengthUI(password, mode) {
+    if (!password){
+        return;
+    }
+
     let bits;
 
     if (mode === "passphrase") {
-        const wordsCount = password.split("-").filter(Boolean).length;
-        bits = wordsCount * Math.log2(WORDS.length);
+        const parts = password.split("-").filter(Boolean);
+
+        const wordCount = Math.max(0, parts.length - 1);
+
+        const wordBits = wordsCount * Math.log2(WORDS.length);
+        const numberBits = Math.log2(100);
+
+        bits = wordBits + numberBits;
     }
     else if (mode === "analyze") {
         const charsetSize = estimateCharsetSize(password);
@@ -297,6 +330,7 @@ function syncAppModeUI() {
     result.classList.remove("hidden");
 
     if (mode === "analyze") {
+        lengthValue.textContent = "-";
         analyzeBox.classList.remove("hidden");
         generatorOnly.classList.add("hidden");
         generateButton.classList.add("hidden");
@@ -318,14 +352,6 @@ function syncAppModeUI() {
     }
 
     generateButton.textContent = passwordInput.value ? "Generate Another Password" : "Generate Password";
-
-    // if (mode === "analyze" && userPasswordInput.value) {
-    //     updateStrengthUI(userPasswordInput.value, "analyze");
-    // }
-    
-    // if (mode === "generate" && passwordInput.value) {
-    //     updateStrengthUI(passwordInput.value, getMode());
-    // }
 }
 
 function syncLengthControlForMode(mode) {
@@ -335,14 +361,13 @@ function syncLengthControlForMode(mode) {
 
     if (mode == "passphrase") {
         // word count range
-        lengthInput.min = "3";
-        lengthInput.max = "8";
+        lengthInput.min = "6";
+        lengthInput.max = "20";
         lengthInput.step = "1";
 
         // if current value out of range, pick reasonable default
         const v = Number(lengthInput.value);
-        if (v < 3 || v > 8)
-            lengthInput.value = "4";
+        lengthInput.value = "8";
     }
     else {
         // character length range
@@ -351,8 +376,7 @@ function syncLengthControlForMode(mode) {
         lengthInput.step = "1";
 
         const v = Number(lengthInput.value);
-        if (v < 8 || v > 64)
-            lengthInput.value = "16";
+        lengthInput.value = "16";
     }
 
     lengthValue.textContent = lengthInput.value;
