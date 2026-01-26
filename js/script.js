@@ -121,13 +121,13 @@ function generatePassword(length = 16, charset) {
 }
 
 function generatePassphrase(wordsCount = 6, separator = "-") {
-    const arr = new Uint32Array(wordsCount);
+    const arr = new Uint32Array(wordsCount + 1);
     crypto.getRandomValues(arr);
 
-    const words = Array.from(arr.slice(0, wordsCount), x => WORDS[x % WORDS.length]);
+    const words = Array.from({ length: wordsCount }, (_, i) => WORDS[arr[i] % WORDS.length]);
     const number = String(arr[wordsCount] % 100).padStart(2, '0');
 
-    return Array.from(arr, x => WORDS[x % WORDS.length]).join(separator);
+    return [...words, number].join(separator);
 }
 
 function getCharsetSizeFromGenerator() {
@@ -233,10 +233,13 @@ function updateStrengthUI(password, mode) {
     if (mode === "passphrase") {
         const parts = password.split("-").filter(Boolean);
 
-        const wordCount = Math.max(0, parts.length - 1);
+        const last = parts.at(-1) ?? "";
+        const hasNumberSuffix = /^\d{2}$/.test(last);
 
-        const wordBits = wordsCount * Math.log2(WORDS.length);
-        const numberBits = Math.log2(100);
+        const wordCount = hasNumberSuffix ? parts.length - 1 : parts.length;
+
+        const wordBits = wordCount * Math.log2(WORDS.length);
+        const numberBits = hasNumberSuffix ? Math.log2(100) : 0;
 
         bits = wordBits + numberBits;
     }
@@ -309,17 +312,15 @@ function setNewPassword() {
     passwordInput.value = pw;
     // reset copied button in case they pressed copy button before
     copyButton.textContent = "Copy";
-    // hide password upon generation each time
     passwordInput.type = "password";
     toggleButton.textContent = "Show";
 
-    // remove the .hidden class
     result.classList.remove("hidden");
-
     analysisOutput.classList.remove("hidden");
-    updateStrengthUI(pw, mode);
 
     generateButton.textContent = "Generate Another Password";
+
+    updateStrengthUI(pw, mode);
 }
 
 function syncAppModeUI() {
@@ -361,22 +362,28 @@ function syncLengthControlForMode(mode) {
 
     if (mode == "passphrase") {
         // word count range
-        lengthInput.min = "6";
+        lengthInput.min = "5";
         lengthInput.max = "20";
         lengthInput.step = "1";
 
         // if current value out of range, pick reasonable default
         const v = Number(lengthInput.value);
-        lengthInput.value = "8";
+        if (v < 5 || v > 20) {
+            // default to 6 words
+            lengthInput.value = "6";
+        }
     }
     else {
         // character length range
         lengthInput.min = "8";
-        lengthInput.max = "64";
+        lengthInput.max = "20";
         lengthInput.step = "1";
 
         const v = Number(lengthInput.value);
-        lengthInput.value = "16";
+        if (v < 8 || v > 20) {
+            // default to 16 characters
+            lengthInput.value = "16";
+        }
     }
 
     lengthValue.textContent = lengthInput.value;
@@ -409,10 +416,11 @@ function wireCopyAndToggle(copyButton, toggleButton, inputField) {
 lengthInput.addEventListener("input", () => {
     lengthValue.textContent = lengthInput.value;
 
-    // if the password already exists, regenerate another one!
-    if (passwordInput.value) {
-        setNewPassword();
+    if (getAppMode() !== "generate") {
+        return;
     }
+
+    setNewPassword();
 });
 
 [lowerOpt, upperOpt, digitsOpt, symbolsOpt].forEach(opt => {
