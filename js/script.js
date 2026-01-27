@@ -16,6 +16,7 @@ const modeInputs = document.querySelectorAll('input[name="mode"]');
 const lengthInput = document.getElementById("length");
 const lengthValue = document.getElementById("length-value");
 const lengthLabel = document.getElementById("length-label");
+const lengthHint = document.getElementById("length-hint");
 
 const charsetBox = document.getElementById("charset-box");
 
@@ -43,7 +44,7 @@ if (!generateButton || !result || !generatorUI || !generatorOnly || !passwordInp
     || !copyButton || !toggleButton|| !lengthInput || !lengthValue || !copyAnalyzeButton
     || !analysisOutput || !lengthLabel || !lowerOpt || !upperOpt || !digitsOpt || !symbolsOpt
     || !charsetHint || !strengthBar || !strengthEl || !crackTimeEl || !toggleAnalyzeButton
-    || !appModeInputs || !analyzeBox || !userPasswordInput || !charsetBox) {
+    || !appModeInputs || !analyzeBox || !userPasswordInput || !charsetBox || !lengthHint) {
   throw new Error("Missing required DOM elements. Check your HTML IDs.");
 }
 
@@ -87,6 +88,10 @@ const WORDS = [
     "mechanic", "engineer", "architect", "designer", "developer", "analyst"
 ];
 
+const PASSPHRASE_SEPARATORS = [
+    "-", "_", ".", "~", ":", "|"
+];
+
 function getAppMode() {
     const checked = [...appModeInputs].find(r => r.checked);
     return checked ? checked.value : "generate";
@@ -120,12 +125,18 @@ function generatePassword(length = 16, charset) {
     return Array.from(arr, x => charset[x % charset.length]).join("");
 }
 
-function generatePassphrase(wordsCount = 6, separator = "-") {
+function generatePassphrase(wordsCount = 6) {
     const arr = new Uint32Array(wordsCount + 1);
     crypto.getRandomValues(arr);
 
-    const words = Array.from({ length: wordsCount }, (_, i) => WORDS[arr[i] % WORDS.length]);
-    const number = String(arr[wordsCount] % 100).padStart(2, '0');
+    const separator = PASSPHRASE_SEPARATORS[arr[0] % PASSPHRASE_SEPARATORS.length];
+
+    const words = Array.from(
+        { length: wordsCount },
+        (_, i) => WORDS[arr[i + 1] % WORDS.length]
+    );
+
+    const number = String(arr[wordsCount + 1] % 100).padStart(2, '0');
 
     return [...words, number].join(separator);
 }
@@ -231,7 +242,7 @@ function updateStrengthUI(password, mode) {
     let bits;
 
     if (mode === "passphrase") {
-        const parts = password.split("-").filter(Boolean);
+        const parts = password.split(/[-_.~:|]/).filter(Boolean);
 
         const last = parts.at(-1) ?? "";
         const hasNumberSuffix = /^\d{2}$/.test(last);
@@ -344,6 +355,9 @@ function syncAppModeUI() {
     generatorOnly.classList.remove("hidden");
     generateButton.classList.remove("hidden");
 
+    syncLengthControlForMode(getMode());
+    lengthValue.textContent = lengthInput.value;
+
     if (passwordInput.value) {
         analysisOutput.classList.remove("hidden");
         updateStrengthUI(passwordInput.value, getMode());
@@ -366,12 +380,10 @@ function syncLengthControlForMode(mode) {
         lengthInput.max = "20";
         lengthInput.step = "1";
 
-        // if current value out of range, pick reasonable default
-        const v = Number(lengthInput.value);
-        if (v < 5 || v > 20) {
-            // default to 6 words
-            lengthInput.value = "6";
-        }
+        // default set to 6 words
+        lengthInput.value = "6";
+
+        lengthHint.textContent = "Recommended: 8-9 words";
     }
     else {
         // character length range
@@ -379,11 +391,8 @@ function syncLengthControlForMode(mode) {
         lengthInput.max = "20";
         lengthInput.step = "1";
 
-        const v = Number(lengthInput.value);
-        if (v < 8 || v > 20) {
-            // default to 16 characters
-            lengthInput.value = "16";
-        }
+        // default set to 16 characters
+        lengthInput.value = "16";
     }
 
     lengthValue.textContent = lengthInput.value;
