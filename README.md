@@ -1,45 +1,44 @@
-# Password Generator & Analyzer
+# Password Generator & Analyzer 🔐
 
-**Demo:** [put link here]
+A client-side password generator and strength analyzer that runs entirely in the browser.
 
-![2 Modes](./images/default_page.png)
+## Features
 
-A password generator and password strength analyzer focusing on security, accessibility, and simple UI design. All operations run within the browser, and no passwords are stored or transmitted.
-
-## Features:
-* 2 Modes:
-    - Generate secure passwords (random or memorable word-based passphrase) using Web Crypto API
-        - Control length of generated password using slidebar
-        - Can select characters to be included within generated password (lowercase, uppercase, numbers, symbols)
-
-![Random password generator mode](./images/random_mode.png)
-![Memorable passphrase generator mode](./images/memorable_mode.png)
-
-    - Analyzing user's inputted password
-
-![Analyze user password mode](./images/analyze_password.png)
-
-* In both modes, passwords are analyzed for:
-    - Estimated entropy (bits)
-    - Strength rating
-    - Time-to-crack estimates (online vs offline)
+- **2 Modes**
+    1. Generate secure passwords (random or memorable word-based passphrase) using the Web Crypto API
+    2. Analyze user-provided passwords
+- Control password length using a slider
+- Select character sets for random password generation
+    - Lowercase letters
+    - Uppercase letters
+    - Numbers
+    - Symbols
+- Password analysis includes:
+    * Estimated entropy (bits)
+    * Strength rating
+    * Time-to-crack estimates (online vs offline)
 * Toggle password visibility
 * Copy passwords to clipboard
-* No server, tracking, or storage of passwords
+* No server, tracking, or password storage
 
-Getting Started Instructions:
-* Clone the repository
-* Double right click the mouse on top of the index.html file on the left bar
-* Click "Open with Live Server"
-* Enjoy!
+## Demo / Screenshots
 
-Project Structure:
-* index.html
-* css/style.css
-* js/script.js
+![2 Modes](./images/default_page.png)
+![Random password generator mode](./images/random_mode.png)
+![Memorable passphrase generator mode](./images/memorable_mode.png)
+![Analyze user password mode](./images/analyze_password.png)
 
-Security & Privacy:
-* Uses `crypto.getRandomValues()`
-* No network requests
-* not stored or logged
-* Optional "disconnect internet after load" note
+## Usage
+
+1. Clone the repository
+2. Open the project folder
+3. Open `index.html` in a browser
+    * Double right click the mouse on top of the `index.html` file on the left bar
+    * Click "Open with Live Server"
+4. Explore and enjoy!
+
+## Security / Privacy
+* Uses `crypto.getRandomValues()` for cryptographically secure randomness
+* No network requests after page load
+* Passwords not stored, logged, or transmitted
+* Optional: disconnect from the internet after loading
