@@ -2,11 +2,15 @@
 
 A client-side password generator and strength analyzer that runs entirely in the browser.
 
+## Project Status
+
+✅ Feature-complete (in testing) - January 2026
+
 ## Features
 
 - **2 Modes**
-    1. Generate secure passwords (random or memorable word-based passphrase) using the Web Crypto API
-    2. Analyze user-provided passwords
+    - Generate secure passwords (random or memorable word-based passphrase) using the Web Crypto API
+    - Analyze user-provided passwords
 - Control password length using a slider
 - Select character sets for random password generation
     - Lowercase letters
@@ -14,18 +18,21 @@ A client-side password generator and strength analyzer that runs entirely in the
     - Numbers
     - Symbols
 - Password analysis includes:
-    * Estimated entropy (bits)
-    * Strength rating
-    * Time-to-crack estimates (online vs offline)
-* Toggle password visibility
-* Copy passwords to clipboard
-* No server, tracking, or password storage
+    - Estimated entropy (bits)
+    - Strength rating
+    - Time-to-crack estimates (online vs offline)
+- Toggle password visibility
+- Copy passwords to clipboard
+- No server, tracking, or password storage
 
 ## Demo / Screenshots
 
 ![2 Modes](./images/default_page.png)
+
 ![Random password generator mode](./images/random_mode.png)
+
 ![Memorable passphrase generator mode](./images/memorable_mode.png)
+
 ![Analyze user password mode](./images/analyze_password.png)
 
 ## Usage
